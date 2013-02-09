@@ -5,7 +5,7 @@ Phutler could be your Butler written in PHP. Think of it as your helper that run
 The basic principle is that phutler provides a number of data-sources which can be used to gather data, and it provides a number of actions
 that can be executed. A Task uses data from the data-sources and triggers actions.
 
-Phutler is based on the excellect reactphp, so you get all the benefits of reactphp for free.
+Phutler is based on the excellect reactphp (node for php), so you get all the benefits of reactphp for free.
 
 
 Data-Sources
@@ -24,3 +24,15 @@ Tasks
 -----
 Tasks combine the data from some data-sources and execute any given actions depending on the data they get from the data-sources.
 A Phutler instance can execute many tasks at once.
+
+
+
+How to use
+==========
+To use Phutler you should get the code, implement some Tasks and then run phutler using ??.
+**Note:** Phutler is not a website, it is run as a daemon in the background. In the future it might also have a small webinterface to check
+its status.
+
+
+
+

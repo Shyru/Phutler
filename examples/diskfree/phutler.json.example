@@ -1,0 +1,10 @@
+{
+	"name":"DiskFreeBot",
+	"tasks": {
+		"DiskFreeCheck": {
+			"disks": ["C:","D:"],
+            "alertLevel":"10%",
+            "email":"alert@example.com"
+		}
+	}
+}

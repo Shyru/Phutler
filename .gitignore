@@ -1,0 +1,16 @@
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+
+# Mac crap
+.DS_Store
+
+# PhpStorm project directory
+.idea

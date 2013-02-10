@@ -1,7 +1,4 @@
 @echo off
 
-pushd %~dp0
+php %~dp0\phutler.php %*
 
-php .\phutler.php %*
-
-popd

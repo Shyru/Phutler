@@ -143,5 +143,5 @@ class SplClassLoader
     }
 }
 
-$classLoader = new SplClassLoader('Phutler', './');
+$classLoader = new SplClassLoader('Phutler', __DIR__.'/');
 $classLoader->register();

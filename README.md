@@ -33,6 +33,12 @@ To use Phutler you should get the code, implement some Tasks, create a phutler.j
 
 **Note:** Phutler is not a website, it is run as a daemon in the background. Nevertheless it has a small web interface to check its status.
 
+Want to join development?
+=========================
+If you want to implement additonal data-sources, actions or task that are usable in  generic way don't hesitate to fork the repository and submit a
+pull request. Please also add unit-tests to your newly created classes.
 
+To run the tests install phpunit with ``composer update --dev`` add your tests into the tests/ directory and then launch
+``vendor/bin/phpunit``
 
 

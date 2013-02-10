@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+        bootstrap="src/autoload.php">
+    <testsuites>
+        <testsuite name="Phutler Test Suite">
+            <directory suffix="Test.php" phpVersion="5.3.0" phpVersionOperator=">=">tests/</directory>
+        </testsuite>
+    </testsuites>
+
+</phpunit>

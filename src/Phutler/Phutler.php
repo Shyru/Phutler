@@ -115,7 +115,7 @@ class Phutler
 							//var_dump($this->config->data->implementations);
 							if (isset($this->config->data->implementations->{$class->name}))
 							{ //we got an implementation!
-								$params[] = new $this->config->data->implementations->{$class->name};
+								$params[] = new $this->config->data->implementations->{$class->name}($this->loop);
 							}
 							else
 							{

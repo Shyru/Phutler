@@ -11,7 +11,8 @@ class DiskFreeTest extends PHPUnit_Framework_TestCase
 {
 	function testGetFreeDiskBytes()
 	{
-		$diskFreeDataSource=new \Phutler\DataSources\DiskFree();
+		$loop = \React\EventLoop\Factory::create();
+		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop);
 		if (is_dir("C:\\"))
 		{ //we are on windows
 			$this->assertEquals(disk_free_space("C:\\"),$diskFreeDataSource->getFreeDiskBytes("C:\\"));
@@ -24,7 +25,8 @@ class DiskFreeTest extends PHPUnit_Framework_TestCase
 
 	function testGetFreeDiskPercent()
 	{
-		$diskFreeDataSource=new \Phutler\DataSources\DiskFree();
+		$loop = \React\EventLoop\Factory::create();
+		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop);
 		if (is_dir("C:\\"))
 		{ //we are on windows
 			$path="C:\\";

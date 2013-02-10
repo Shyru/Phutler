@@ -16,7 +16,7 @@ namespace Phutler\Actions;
  *
  *
  */
-class SendMail implements Interfaces\SendMail
+class SendMail extends Action implements Interfaces\SendMail
 {
 
 	/**

@@ -12,7 +12,7 @@ namespace Phutler\DataSources;
 /**
  * Default implementation of the DiskFree Interface.
  */
-class DiskFree implements Interfaces\DiskFree
+class DiskFree extends DataSource implements Interfaces\DiskFree
 {
 
 	/**

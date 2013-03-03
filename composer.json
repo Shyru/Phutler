@@ -1,8 +1,11 @@
 {
     "require": {
-        "react/react": "0.2.*"
+        "react/react": "0.2.*",
+        "mtdowling/cron-expression": "1.0.x",
+        "dannykopping/docblock": "0.3.x"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "shyru/timedilation": "0.1.*"
     }
 }

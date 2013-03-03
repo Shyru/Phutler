@@ -10,6 +10,9 @@
 namespace Phutler;
 
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+
 class Phutler
 {
 	const VERSION="0.0.1";
@@ -51,11 +54,16 @@ class Phutler
 		$this->config=new Config($_config,$defaultConfig);
 		$this->dir=$_dir;
 
+		$this->log=new Logger("phutler");
+		$this->log->pushHandler(new StreamHandler('php://stdout'));
+
+
+
 	}
 
 	private function initTasks()
 	{
-		echo "Summoning Tasks...\n";
+		$this->log->info("Summoning Tasks...");
 
 		$taskDirs=array($this->dir."/".$this->config->data->dirs->tasks,__DIR__."/Tasks");
 
@@ -71,26 +79,26 @@ class Phutler
 					include_once $taskFileName;
 					$found=true;
 					/** @var $task \Phutler\Tasks\Task */
-					$task=new $className($taskConfig,$this->loop);
+					$task=new $className($taskConfig,$this->loop,$this->log);
 					if ($this->injectDependencies($task))
 					{
 						if ($task->init())
 						{
-							echo "Initialized task '$className'!\n";
+							$this->log->info("Initialized task '$className'!");
 							$task->start();
 							$this->tasks[]=$task;
 						}
-						else echo "Failed to init task '$className'!\n";
+						else $this->log->addError("Failed to init task '$className'!");
 					}
-					else echo "Failed to inject dependencies into task '$className'!\n";
+					else $this->log->addError("Failed to inject dependencies into task '$className'!");
 				}
 			}
 			if (!$found)
 			{
-				echo "Could not find implementation for task '$className' in any of the following locations:\n";
+				$this->log->addError("Could not find implementation for task '$className' in any of the following locations:");
 				foreach ($taskDirs as $taskDir)
 				{
-					echo " - $taskDir\n";
+					$this->log->debug(" - $taskDir");
 				}
 			}
 		}
@@ -105,7 +113,7 @@ class Phutler
 			{ //we have a public method, check the name
 				if (strpos($method->name,"set")===0)
 				{ //This is a setter method
-					echo "Checking $method->name for needed injections:\n";
+					$this->log->debug("Checking $method->name for needed injections:");
 					$params=array();
 					foreach ($method->getParameters() as $parameter)
 					{
@@ -119,7 +127,7 @@ class Phutler
 							}
 							else
 							{
-								echo "  Could not find implementation for $class->name! :-(\n";
+								$this->log->error("  Could not find implementation for $class->name! :-(");
 								return false;
 							}
 						}
@@ -127,9 +135,9 @@ class Phutler
 					}
 					if (count($params) > 0)
 					{
-						echo "  Injecting dependencies into $method->name...\n";
+						$this->log->debug("  Injecting dependencies into $method->name...");
 						$method->invokeArgs($_task, $params);
-					} else echo "  Nothing to do.\n";
+					} else $this->log->debug("  Nothing to do.");
 				}
 			}
 		}
@@ -142,28 +150,28 @@ class Phutler
 	 */
 	function run()
 	{
-		echo "This is ".$this->config->data->name." starting up...\n";
+		$this->log->info("This is ".$this->config->data->name." starting up...");
 		$this->loop = \React\EventLoop\Factory::create();
 
 		$this->initTasks();
 		if (count($this->tasks)==0)
 		{
-			echo "No task could be initialized, exiting!";
+			$this->log->critical("No task could be initialized, exiting!");
 			return;
 		}
 
 		if ($this->config->data->WebInterface->enable)
 		{
-			$this->webInterface=new WebInterface($this->config,$this->loop);
+			$this->webInterface=new WebInterface($this->config,$this->loop,$this->log);
 		}
 		else
 		{
-			echo "WebInterface disabled, not starting one.\n";
+			$this->log->info("WebInterface disabled, not starting one.");
 		}
 
 
 
-		echo "Now running...\n";
+		$this->log->info("Now running...");
 		$this->loop->run();
 	}
 

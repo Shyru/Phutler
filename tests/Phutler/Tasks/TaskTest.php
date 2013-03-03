@@ -24,7 +24,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase
 	{
 		TimeMachine::setNow("2013-03-03 09:59:00",200);
 		$loop=\React\EventLoop\Factory::create();
-		$someTask=new SomeTask(new \stdClass(),$loop);
+		$someTask=new SomeTask(new \stdClass(),$loop, new \Monolog\Logger("test"));
 		TimeMachine::fastForward(60);
 		$loop->tick();
 

@@ -48,12 +48,12 @@ class DiskFreeCheck extends \Phutler\Tasks\Task
 	{
 		if (count($this->config->data->disks)==0)
 		{
-			echo "You must at least specify one disk to check for the DiskFreeCheck to work!";
+			$this->log->addError("You must at least specify one disk to check for the DiskFreeCheck to work!");
 			return false;
 		}
 		if (!isset($this->config->data->email))
 		{
-			echo "You must specify an email for the DiskFreeCheck!";
+			$this->log->addError("You must specify an email for the DiskFreeCheck!");
 			return false;
 		}
 		return true;
@@ -73,7 +73,7 @@ class DiskFreeCheck extends \Phutler\Tasks\Task
 	 */
 	function doEveryMinute()
 	{
-		echo "DiskFreeCheck: Checking disk-space...\n";
+		$this->log->info("DiskFreeCheck: Checking disk-space...\n");
 		$alertLevel=$this->config->data->alertLevel;
 
 		foreach ($this->config->data->disks as $disk)

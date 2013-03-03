@@ -33,6 +33,8 @@ use Phutler\CronMethodExecutor;
  * or action to use just implement a set*() method that expects a data-source or action as parameter. This methods
  * will automatically be called from phutler and you will get the data-sources or actions you need.
  *
+ * If you want to log something, use $this->log, this is a readily configured Monolog\Logger instance.
+ *
  *
  */
 class Task
@@ -44,13 +46,20 @@ class Task
 	 */
 	protected $loop;
 
+	/**
+	 * @var \Monolog\Logger
+	 * The Logger instance to use when you want to log something.
+	 */
+	protected $log;
+
 	protected $config;
 
-	final function __construct($taskConfig, \React\EventLoop\LoopInterface $_loop)
+	final function __construct($taskConfig, \React\EventLoop\LoopInterface $_loop, \Monolog\Logger $_log)
 	{
 
 		$this->config=new Config($taskConfig,$this->defaultConfig());
 		$this->loop=$_loop;
+		$this->log=$_log;
 		$this->loop->addPeriodicTimer(1,array($this,"doEverySecond"));
 		$this->loop->addPeriodicTimer(60,array($this,"doEveryMinute"));
 		$this->loop->addPeriodicTimer(60*60,array($this,"doEveryHour"));

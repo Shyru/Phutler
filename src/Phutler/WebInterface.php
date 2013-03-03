@@ -9,6 +9,7 @@
 
 namespace Phutler;
 
+use Monolog\Logger;
 use React\EventLoop\LoopInterface;
 use React\Http\Request;
 use React\Http\Response;
@@ -20,6 +21,7 @@ class WebInterface
 {
 	private $loop;
 	private $config;
+	private $log;
 
 
 	/**
@@ -28,17 +30,18 @@ class WebInterface
 	 * @param \Phutler\Config $_config The configuration as read from phutler.json
 	 * @param \React\EventLoop\LoopInterface $_loop The react loop to use for the webserver.
 	 */
-	function __construct(Config $_config, LoopInterface $_loop)
+	function __construct(Config $_config, LoopInterface $_loop, Logger $_log)
 	{
 		$this->config=$_config;
 		$this->loop=$_loop;
+		$this->log=$_log;
 
 		$socket = new \React\Socket\Server($_loop);
 		$http = new \React\Http\Server($socket);
 
 
 		$http->on('request',array($this,"handleRequest"));
-		echo "WebInterface is listening on ".$this->config->data->WebInterface->port."...\n";
+		$this->log->info("WebInterface is listening on ".$this->config->data->WebInterface->port."...");
 		$socket->listen($this->config->data->WebInterface->port);
 	}
 
@@ -54,7 +57,7 @@ class WebInterface
 		{
 			$_response->writeHead(200,array("Content-Type"=>"text/plain"));
 			$_response->end("Being stopped...");
-			echo "Being stopped from webinterface. Shutting down in 0.5 sec...";
+			$this->log->info("Being stopped from webinterface. Shutting down in 0.5 sec...");
 			$this->loop->addTimer(0.5,array($this->loop,"stop"));
 		}
 		else

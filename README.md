@@ -36,6 +36,7 @@ To use Phutler you should get the code, implement some Tasks, create a phutler.j
 Want to join development?
 =========================
 [![Build Status](https://travis-ci.org/Shyru/Phutler.png?branch=master)](https://travis-ci.org/Shyru/Phutler)
+
 If you want to implement additonal data-sources, actions or task that are usable in  generic way don't hesitate to fork the repository and submit a
 pull request. Please also add unit-tests to your newly created classes.
 

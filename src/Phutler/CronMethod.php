@@ -25,9 +25,9 @@ class CronMethod
 	/**
 	 * Constructs a new CronMethod.
 	 * @param CronExpression $_cronExpression The CronExpression that is used to decide when to execute the callback
-	 * @param callable $_callback The callback that should be executed if the \c $_cronExpression is due.
+	 * @param callback $_callback The callback that should be executed if the \c $_cronExpression is due.
 	 */
-	function __construct(CronExpression $_cronExpression, callable $_callback)
+	function __construct(CronExpression $_cronExpression, $_callback)
 	{
 		$this->cronExpression=$_cronExpression;
 		$this->callback=$_callback;

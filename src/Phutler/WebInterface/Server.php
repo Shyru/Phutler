@@ -10,9 +10,10 @@
 namespace Phutler\WebInterface;
 
 use Monolog\Logger;
+use Phutler\Config;
 use React\EventLoop\LoopInterface;
-use React\Http\Request;
-use React\Http\Response;
+use Phluid\Request;
+use Phluid\Response;
 
 /**
  * The Webinterface provides a simple webinterface to view the status of Phutler.
@@ -41,31 +42,32 @@ class Server
 		$http = new \React\Http\Server($socket);
 
 
-		//$http->on('request',array($this,"handleRequest"));
 		$this->log->info("WebInterface is listening on ".$this->config->data->WebInterface->port."...");
-		$this->app=new \React\Espresso\Application();
-		$this->app->get('/favicon.ico', function ($request, $response) {
-			$response->writeHead(204);
-			$response->end();
+		$this->app=new PhluidApp($_loop);
+		$this->app->inject( new \Phluid\Middleware\StaticFiles( __DIR__ . '/static' ) );
+		$that=$this;
+		$this->app->inject( function(Request $_request, Response $_response, $next ) use ($that) {
+			$_response->setHeader('X-Powered-By', 'Phutler');
+			$_request->phutlerName=$that->config->data->name;
+			$next();
+		} );
+		$this->app->get('/favicon.ico', function (Request $_request, Response $_response) {
+			$_response->writeHead(204);
+			$_response->end();
 		});
+
 
 		$this->app->get('/',array($this,"index"));
 		$this->app->get('/terminate',array($this,"terminate"));
+		$this->app->get('/showLog',array($this,"showLog"));
 
-		$stack=new \React\Espresso\Stack($this->app);
-		$stack['http'] = $http;
-		$stack->listen($this->config->data->WebInterface->port);
+		$this->app->listen($this->config->data->WebInterface->port);
 	}
 
 
 	function index(Request $_request, Response $_response)
 	{
-		$_response->writeHead(200,array("Content-Type"=>"text/html"));
-		$_response->write("<html><head><title>".$this->config->data->name." WebInterface</title></head>");
-		$_response->write("<body><h1>".$this->config->data->name." WebInterface</h1>");
-		$_response->write($this->config->data->name." is running fine!<br/>");
-		$_response->write("<a href='/terminate'>Kill me</a>");
-		$_response->end("</body></html>");
+		$_response->render("index",array("phutlerName"=>$this->config->data->name));
 	}
 
 	function terminate(Request $_request, Response $_response)
@@ -74,6 +76,11 @@ class Server
 		$_response->end("Being stopped...");
 		$this->log->info("Being stopped from webinterface. Shutting down in 0.5 sec...");
 		$this->loop->addTimer(0.5,array($this->loop,"stop"));
+	}
+
+	function showLog(Request $_request, Response $_response)
+	{
+		$_response->render("showLog",array("phutlerName"=>$this->config->data->name));
 	}
 
 

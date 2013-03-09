@@ -49,7 +49,7 @@ class Config
 		$keys = array_keys( (array)$_config );
 		foreach ($keys as $key)
 		{
-			if (is_object($_defaultConfig->$key) && is_object($_config->$key))
+			if (isset($_defaultConfig->$key) && is_object($_defaultConfig->$key) && is_object($_config->$key))
 			{
 				$config->$key = $this->mergeConfig( $_defaultConfig->$key, $_config->$key );
 			}

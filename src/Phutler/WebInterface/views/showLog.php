@@ -7,3 +7,8 @@
  * @author Daniel Haas <daniel@file-factory.de>
  */
 $this->layout( 'layout' );
+?>
+<h2>Log</h2>
+<div class="log">
+	Attaching to log...
+</div>

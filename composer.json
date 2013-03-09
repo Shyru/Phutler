@@ -1,9 +1,11 @@
 {
     "require": {
-        "react/react": "0.2.*",
+        "react/react": "dev-master",
         "mtdowling/cron-expression": "1.0.x",
         "dannykopping/docblock": "0.3.x",
-        "monolog/monolog": "1.4.x"
+        "monolog/monolog": "1.4.x",
+        "phluid/phluid":"dev-master",
+        "cboden/ratchet": "0.2.x"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",

@@ -162,7 +162,7 @@ class Phutler
 
 		if ($this->config->data->WebInterface->enable)
 		{
-			$this->webInterface=new WebInterface($this->config,$this->loop,$this->log);
+			$this->webInterface=new WebInterface\Server($this->config,$this->loop,$this->log);
 		}
 		else
 		{

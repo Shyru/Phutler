@@ -11,6 +11,7 @@ namespace Phutler\WebInterface;
 
 use Monolog\Logger;
 use Phutler\Config;
+use Ratchet\Server\IoServer;
 use React\EventLoop\LoopInterface;
 use Phluid\Request;
 use Phluid\Response;
@@ -62,6 +63,15 @@ class Server
 		$this->app->get('/showLog',array($this,"showLog"));
 
 		$this->app->listen($this->config->data->WebInterface->port);
+
+
+		//initialize websocket server:
+		$webSocket=new \React\Socket\Server($_loop);
+		$this->websocketServer = new \Ratchet\WebSocket\WsServer(new WebSocketServer($_log),$webSocket,$_loop);
+		$this->websocketServer->disableVersion("Hixie76");
+		$ioServer = new \Ratchet\Server\IoServer($this->websocketServer,$webSocket,$_loop);
+
+		$webSocket->listen($this->config->data->WebInterface->port+1);
 	}
 
 
@@ -80,7 +90,7 @@ class Server
 
 	function showLog(Request $_request, Response $_response)
 	{
-		$_response->render("showLog",array("phutlerName"=>$this->config->data->name));
+		$_response->render("showLog",array("phutlerName"=>$this->config->data->name,"websocketPort"=>$this->config->data->WebInterface->port+1));
 	}
 
 

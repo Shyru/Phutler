@@ -8,7 +8,11 @@
  */
 $this->layout( 'layout' );
 ?>
+<script type="text/javascript" src="/logger.js"></script>
 <h2>Log</h2>
-<div class="log">
-	Attaching to log...
+<div class="log"><pre id="log">Attaching to log...
+</pre>
 </div>
+<script type="text/javascript">
+	connect(<?php echo $websocketPort; ?>);
+</script>

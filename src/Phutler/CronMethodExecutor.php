@@ -28,6 +28,7 @@ class CronMethodExecutor
 	function __construct($_object)
 	{
 		//initialize methods that should be called with a cron config
+		$this->cronMethods=array();
 		$parser=new \DocBlock\Parser();
 		$parser->analyze($_object);
 		foreach ($parser->getMethods() as $method)

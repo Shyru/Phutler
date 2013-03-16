@@ -73,7 +73,7 @@ class DiskFreeCheck extends \Phutler\Tasks\Task
 	 */
 	function doEveryMinute()
 	{
-		$this->log->info("DiskFreeCheck: Checking disk-space...");
+		$this->log->info("Checking disk-space...");
 		$alertLevel=$this->config->data->alertLevel;
 
 		foreach ($this->config->data->disks as $disk)

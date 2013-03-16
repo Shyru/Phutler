@@ -13,6 +13,7 @@ namespace Phutler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Phutler\Persistence\Proxy;
 
 class Phutler
 {
@@ -44,10 +45,14 @@ class Phutler
                     "enable":"true",
                     "logBufferSize":20
                 },
+                "Persistence":{
+                	"filePath":"phutler.state"
+                },
                 "implementations":{
                     "Phutler::Actions::Interfaces::SendMail":"Phutler::Actions::SendMail",
                     "Phutler::DataSources::Interfaces::DiskFree":"Phutler::DataSources::DiskFree",
-                    "Phutler::DataSources::Interfaces::Ping":"Phutler::DataSources::Ping"
+                    "Phutler::DataSources::Interfaces::Ping":"Phutler::DataSources::Ping",
+                    "Phutler::Persistence::Persistor":"Phutler::Persistence::FilePersistor"
                 },
                 "dirs":{
                     "tasks":"Tasks"
@@ -72,6 +77,9 @@ class Phutler
 
 		//now create a base log for our self
 		$this->log=$this->initializeLogger(new Logger("phutler"));
+
+
+
 	}
 
 	/**
@@ -110,7 +118,7 @@ class Phutler
 					$log=new Logger($className);
 					$this->initializeLogger($log);
 					/** @var $task \Phutler\Tasks\Task */
-					$task=new $className($taskConfig,$this->loop,$log);
+					$task=new $className($taskConfig,$this->loop,$log,new Proxy($this->persistor,$className.":"));
 					if ($this->injectDependencies($task))
 					{
 						if ($task->init())
@@ -183,6 +191,12 @@ class Phutler
 	{
 		$this->log->info("This is ".$this->config->data->name." starting up...");
 		$this->loop = \React\EventLoop\Factory::create();
+
+		//setup the persistor:
+		$persistorClass=$this->config->data->implementations->{"Phutler\\Persistence\\Persistor"};
+		//prepend the dir to the path so that it is relative to the config file
+		$this->config->data->Persistence->filePath=$this->dir."/".$this->config->data->Persistence->filePath;
+		$this->persistor=new $persistorClass($this->config->data->Persistence,$this->loop);
 
 		$this->initTasks();
 		if (count($this->tasks)==0)

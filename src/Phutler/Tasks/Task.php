@@ -13,9 +13,10 @@ namespace Phutler\Tasks;
 use Cron\CronExpression;
 use Phutler\Config;
 use Phutler\CronMethodExecutor;
+use Phutler\Persistence\Persistor;
 
 /**
- * Base-class for all Tasks.
+ * Base class for all Tasks.
  *
  * To implement your own Task inherit from this class and implement any of the
  * doEvery* methods to do your stuff. You can also use cron-expressions to define when
@@ -34,6 +35,9 @@ use Phutler\CronMethodExecutor;
  * will automatically be called from phutler and you will get the data-sources or actions you need.
  *
  * If you want to log something, use $this->log, this is a readily configured Monolog\Logger instance.
+ *
+ * If you need to persist some data between phutler restarts use $this->persistor which is an object implementing the
+ * Persistor interface. It allows you to easily get() and set() values.
  *
  *
  */
@@ -54,12 +58,15 @@ class Task
 
 	protected $config;
 
-	final function __construct($taskConfig, \React\EventLoop\LoopInterface $_loop, \Monolog\Logger $_log)
+	protected $persistor;
+
+	final function __construct($taskConfig, \React\EventLoop\LoopInterface $_loop, \Monolog\Logger $_log, Persistor $_persistor)
 	{
 
 		$this->config=new Config($taskConfig,$this->defaultConfig());
 		$this->loop=$_loop;
 		$this->log=$_log;
+		$this->persistor=$_persistor;
 		$this->loop->addPeriodicTimer(1,array($this,"doEverySecond"));
 		$this->loop->addPeriodicTimer(60,array($this,"doEveryMinute"));
 		$this->loop->addPeriodicTimer(60*60,array($this,"doEveryHour"));

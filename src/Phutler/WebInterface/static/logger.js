@@ -23,9 +23,9 @@ function onOpen(evt)
     console.log("onOpen",arguments);
 }
 
-function onClose(evt)
+function onClose()
 {
-
+    document.getElementById('log').innerHTML+='<span style="color:red;">Lost connection to phutler!</span>';
 }
 
 function onMessage(evt)

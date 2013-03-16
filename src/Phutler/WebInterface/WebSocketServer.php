@@ -46,7 +46,7 @@ class WebSocketServer implements MessageComponentInterface
 	 */
 	function onOpen(ConnectionInterface $conn)
 	{
-		$this->log->debug("Got incoming connection!");
+		$this->log->debug("Got incoming websocket connection!");
 		$conn->send("Welcome!");
 		$conn->send("Flushing last log entries:");
 		$buffer=$this->logHandler->getBuffer();

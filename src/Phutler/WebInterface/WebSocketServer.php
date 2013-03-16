@@ -19,12 +19,24 @@ use Ratchet\MessageComponentInterface;
 class WebSocketServer implements MessageComponentInterface
 {
 	private $log;
+	private $logHandler;
+	/** @var \SplObjectStorage|ConnectionInterface[] */
 	private $clients;
 
-	function __construct(\Monolog\Logger $_log)
+	function __construct(\Monolog\Logger $_log, LogHandler $_logHandler)
 	{
 		$this->log=$_log;
+		$this->logHandler=$_logHandler;
 		$this->clients=new \SplObjectStorage();
+		$this->logHandler->registerCallback(array($this,"onLogMessage"));
+	}
+
+	function onLogMessage($_message)
+	{
+		foreach ($this->clients as $client)
+		{
+			$client->send(trim($_message));
+		}
 	}
 
 	/**
@@ -34,10 +46,15 @@ class WebSocketServer implements MessageComponentInterface
 	 */
 	function onOpen(ConnectionInterface $conn)
 	{
-		$this->clients->attach($conn);
 		$this->log->debug("Got incoming connection!");
 		$conn->send("Welcome!");
 		$conn->send("Flushing last log entries:");
+		$buffer=$this->logHandler->getBuffer();
+		foreach ($buffer as $message)
+		{
+			$conn->send(trim($message));
+		}
+		$this->clients->attach($conn);
 	}
 
 	/**

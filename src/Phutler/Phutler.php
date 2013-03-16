@@ -11,6 +11,7 @@ namespace Phutler;
 
 
 use Monolog\Handler\StreamHandler;
+use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
 
 class Phutler
@@ -20,8 +21,10 @@ class Phutler
 	private $loop;
 	private $config;
 	private $webInterface;
+	private $webInterfaceLogHandler;
 	private $tasks;
 	private $dir;
+	private $logHandlers;
 
 
 	/**
@@ -30,6 +33,7 @@ class Phutler
 	 *
 	 * @param \stdClass $_config The configuration read from the phutler.json file as object.
 	 * @param string $_dir The path where the config was found. This is needed so that relative paths in the config file work as expected.
+	 * @throws \Exception When the default configuration is broken. (Should normally not happen)
 	 */
 	function __construct($_config,$_dir)
 	{
@@ -37,7 +41,8 @@ class Phutler
                 "name":"Phutler",
                 "WebInterface":{
                     "port":1337,
-                    "enable":"true"
+                    "enable":"true",
+                    "logBufferSize":20
                 },
                 "implementations":{
                     "Phutler::Actions::Interfaces::SendMail":"Phutler::Actions::SendMail",
@@ -54,11 +59,35 @@ class Phutler
 		$this->config=new Config($_config,$defaultConfig);
 		$this->dir=$_dir;
 
-		$this->log=new Logger("phutler");
-		$this->log->pushHandler(new StreamHandler('php://stdout'));
+		$logFormatter=new LogFormatter();
+		//create a stdout log handler
+		$stdoutHandler=new StreamHandler('php://stdout');
+		$stdoutHandler->setFormatter($logFormatter);
+		$this->logHandlers[]=$stdoutHandler;
 
+		//create a log handler for the webinterface
+		$this->webInterfaceLogHandler=new WebInterface\LogHandler($this->config->data->WebInterface->logBufferSize);
+		$this->webInterfaceLogHandler->setFormatter($logFormatter);
+		$this->logHandlers[]=$this->webInterfaceLogHandler;
 
+		//now create a base log for our self
+		$this->log=$this->initializeLogger(new Logger("phutler"));
+	}
 
+	/**
+	 * Initialize a logger.
+	 * This pushes all necessary handlers to the logger.
+	 *
+	 * @param Logger $_log The logger that should be initialized
+	 * @return Logger The initialized logger
+	 */
+	private function initializeLogger(Logger $_log)
+	{
+		foreach ($this->logHandlers as $logHandler)
+		{
+			$_log->pushHandler($logHandler);
+		}
+		return $_log;
 	}
 
 	private function initTasks()
@@ -78,8 +107,10 @@ class Phutler
 				{ //we found a class with this name, fine use it
 					include_once $taskFileName;
 					$found=true;
+					$log=new Logger($className);
+					$this->initializeLogger($log);
 					/** @var $task \Phutler\Tasks\Task */
-					$task=new $className($taskConfig,$this->loop,$this->log);
+					$task=new $className($taskConfig,$this->loop,$log);
 					if ($this->injectDependencies($task))
 					{
 						if ($task->init())
@@ -162,7 +193,7 @@ class Phutler
 
 		if ($this->config->data->WebInterface->enable)
 		{
-			$this->webInterface=new WebInterface\Server($this->config,$this->loop,$this->log);
+			$this->webInterface=new WebInterface\Server($this->config,$this->loop,$this->initializeLogger(new Logger("WebInterface")),$this->webInterfaceLogHandler);
 		}
 		else
 		{
@@ -174,5 +205,7 @@ class Phutler
 		$this->log->info("Now running...");
 		$this->loop->run();
 	}
+
+
 
 }

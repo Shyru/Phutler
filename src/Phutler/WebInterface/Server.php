@@ -33,7 +33,7 @@ class Server
 	 * @param \Phutler\Config $_config The configuration as read from phutler.json
 	 * @param \React\EventLoop\LoopInterface $_loop The react loop to use for the webserver.
 	 */
-	function __construct(Config $_config, LoopInterface $_loop, Logger $_log)
+	function __construct(Config $_config, LoopInterface $_loop, Logger $_log, LogHandler $_logHandler)
 	{
 		$this->config=$_config;
 		$this->loop=$_loop;
@@ -43,7 +43,7 @@ class Server
 		$http = new \React\Http\Server($socket);
 
 
-		$this->log->info("WebInterface is listening on ".$this->config->data->WebInterface->port."...");
+		$this->log->info("Listening on ".$this->config->data->WebInterface->port."...");
 		$this->app=new PhluidApp($_loop);
 		$this->app->inject( new \Phluid\Middleware\StaticFiles( __DIR__ . '/static' ) );
 		$that=$this;
@@ -67,7 +67,7 @@ class Server
 
 		//initialize websocket server:
 		$webSocket=new \React\Socket\Server($_loop);
-		$this->websocketServer = new \Ratchet\WebSocket\WsServer(new WebSocketServer($_log),$webSocket,$_loop);
+		$this->websocketServer = new \Ratchet\WebSocket\WsServer(new WebSocketServer($_log,$_logHandler),$webSocket,$_loop);
 		$this->websocketServer->disableVersion("Hixie76");
 		$ioServer = new \Ratchet\Server\IoServer($this->websocketServer,$webSocket,$_loop);
 

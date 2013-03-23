@@ -25,11 +25,11 @@ class SendMail extends Action implements Interfaces\SendMail
 	 * @param string $_to The adress where the mail should be sent to.
 	 * @param string $_subject The subject of the mail that should be sent.
 	 * @param string $_body The body (text) of the mail
-	 * @param string $_headers The headers that should be sent along with the
+	 * @param string $_headers The headers that should be sent along with the mail.
 	 * @return bool True if sending the mail worked, false otherwise
 	 */
 	function send($_to, $_subject, $_body, $_headers = null)
 	{
-		return mail($_to,$_subject,$_body,$_headers);
+		return $this->isolator->mail($_to,$_subject,$_body,$_headers);
 	}
 }

@@ -5,7 +5,8 @@
         "dannykopping/docblock": "0.3.x",
         "monolog/monolog": "1.4.x",
         "phluid/phluid":"dev-master",
-        "cboden/ratchet": "0.2.x"
+        "cboden/ratchet": "0.2.x",
+        "icecave/isolator": "2.1.x"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",

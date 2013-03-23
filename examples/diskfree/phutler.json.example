@@ -4,7 +4,14 @@
 		"DiskFreeCheck": {
 			"disks": ["C:","D:"],
             "alertLevel":"10%",
-            "email":"alert@example.com"
+            "email":"alert@example.com",
+            "dependencies":{
+                "SendMail":{
+                    "config": {
+                        "from":"phutler@example.com"
+                    }
+                }
+            }
 		}
 	}
 }

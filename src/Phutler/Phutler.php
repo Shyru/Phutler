@@ -119,7 +119,7 @@ class Phutler
 					$this->initializeLogger($log);
 					/** @var $task \Phutler\Tasks\Task */
 					$task=new $className($taskConfig,$this->loop,$log,new Proxy($this->persistor,$className.":"));
-					if ($this->injectDependencies($task))
+					if ($this->injectDependencies($task,$taskConfig))
 					{
 						if ($task->init())
 						{
@@ -143,7 +143,7 @@ class Phutler
 		}
 	}
 
-	private function injectDependencies(Tasks\Task $_task)
+	private function injectDependencies(Tasks\Task $_task, $_config)
 	{
 		$taskReflector=new \ReflectionClass($_task);
 		foreach ($taskReflector->getMethods() as $method)
@@ -160,9 +160,35 @@ class Phutler
 						if (substr_count($class->name,"Interfaces")>0)
 						{ //we found an interface, lets check if we have an implementation for it
 							//var_dump($this->config->data->implementations);
-							if (isset($this->config->data->implementations->{$class->name}))
-							{ //we got an implementation!
-								$params[] = new $this->config->data->implementations->{$class->name}($this->loop);
+							$interfaceName=substr($class->name,strrpos($class->name,"\\")+1);
+							$implementationName="";
+							$config=null;
+							if (isset($_config->dependencies) &&
+								isset($_config->dependencies->{$interfaceName}) &&
+								isset($_config->dependencies->{$interfaceName}->implementation))
+							{ //we got a task-specific implementation!
+								$implementationName=$_config->dependencies->{$interfaceName}->implementation;
+								if (!class_exists($implementationName,true))
+								{ //we found no implementation with that name, its probably an implementation from phutler itself, prepend the correct namespace
+									$implementationName=substr($class->name,0,strpos($class->name,"Interfaces")).$implementationName;
+								}
+							}
+							else if (isset($this->config->data->implementations->{$class->name}))
+							{ //we got an implementation from the default config
+								$implementationName=$this->config->data->implementations->{$class->name};
+							}
+							//check if we have a specific configuration for this dependency
+							if (isset($_config->dependencies) &&
+								isset($_config->dependencies->{$interfaceName}) &&
+								isset($_config->dependencies->{$interfaceName}->config))
+							{ //yes we got a config, we must pass this to the dependency
+								$config=$_config->dependencies->{$interfaceName}->config;
+								$this->log->debug("Config of dependency is: ".json_encode($config));
+							}
+
+							if ($implementationName)
+							{ //we got an implementation name
+								$params[] = new $implementationName($this->loop,$this->initializeLogger(new Logger($implementationName)),$config);
 							}
 							else
 							{

@@ -7,12 +7,15 @@
  * @author Daniel Haas <daniel@file-factory.de>
  */
 
+use Monolog\Logger;
+
 class DiskFreeTest extends PHPUnit_Framework_TestCase
 {
 	function testGetFreeDiskBytes()
 	{
 		$loop = \React\EventLoop\Factory::create();
-		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop);
+		$log=new Logger("test");
+		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop,$log);
 		if (is_dir("C:\\"))
 		{ //we are on windows
 			$this->assertEquals(disk_free_space("C:\\"),$diskFreeDataSource->getFreeDiskBytes("C:\\"));
@@ -26,7 +29,8 @@ class DiskFreeTest extends PHPUnit_Framework_TestCase
 	function testGetFreeDiskPercent()
 	{
 		$loop = \React\EventLoop\Factory::create();
-		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop);
+		$log=new Logger("test");
+		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop,$log);
 		if (is_dir("C:\\"))
 		{ //we are on windows
 			$path="C:\\";

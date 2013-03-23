@@ -8,19 +8,22 @@
  */
 
 
+use Monolog\Logger;
 
 class PingTest extends PHPUnit_Framework_TestCase
 {
 	function testIsPingable()
 	{
-		if (getenv("TRAVIS")!=true)
-		{ //unfortunatly the ping-data source needs root/admin-rights so we cannot execute it in a travis environment
-			$loop = \React\EventLoop\Factory::create();
-			$pingDataSource=new \Phutler\DataSources\Ping($loop);
+		global $argv;
+		//unfortunatly the ping-data source needs root/admin-rights so we cannot execute it in a travis environment or from PhpStorm
+		if (getenv("TRAVIS")==true || substr_count(implode($argv," "),"ide-phpunit.php")>0) $this->markTestSkipped("Pingtest needs admin/root rights!");
+
+		$loop = \React\EventLoop\Factory::create();
+		$log=new Logger("test");
+		$pingDataSource=new \Phutler\DataSources\Ping($loop,$log);
 
 
-			$this->assertTrue($pingDataSource->isPingable("127.0.0.1"));
-			$this->assertFalse($pingDataSource->isPingable("192.168.100.150"));
-		}
+		$this->assertTrue($pingDataSource->isPingable("127.0.0.1"));
+		$this->assertFalse($pingDataSource->isPingable("192.168.100.150"));
 	}
 }

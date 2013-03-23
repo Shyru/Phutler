@@ -10,25 +10,19 @@
 namespace Phutler\Actions;
 
 
-use React\EventLoop\LoopInterface;
-use Icecave\Isolator\Isolator;
 
 /**
  * Base-class for all actions.
- * This provides the protected member variables \c $loop and \c $isolator to action implementations.
+ * This provides the protected member variables \c $loop, \c $config and \c $isolator to action implementations.
  *
  * To improve testability of actions, you should use the isolator instance to make calls to php's built-in php functions.
  * This allows you to assert in unit-tests that your action makes the right php calls when used.
  *
+ * If your action needs some form of configuration use $config to access configuration values.
+ *
  */
-class Action
+class Action extends \Phutler\Dependency
 {
-	protected $loop;
-	protected $isolator;
 
-	function __construct(LoopInterface $_loop, Isolator $_isolator=null)
-	{
-		$this->loop=$_loop;
-		$this->isolator=Isolator::get($_isolator);
-	}
+
 }

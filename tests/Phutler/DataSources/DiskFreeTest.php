@@ -15,14 +15,20 @@ class DiskFreeTest extends PHPUnit_Framework_TestCase
 	{
 		$loop = \React\EventLoop\Factory::create();
 		$log=new Logger("test");
-		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop,$log);
+		$isolator=$this->getMock("\\Icecave\\Isolator\\Isolator",array("disk_free_space"));
+		$isolator->expects($this->once())
+			->method("disk_free_space")
+			->will($this->returnValue(768));
+
+
+		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop,$log,null,$isolator);
 		if (is_dir("C:\\"))
 		{ //we are on windows
-			$this->assertEquals(disk_free_space("C:\\"),$diskFreeDataSource->getFreeDiskBytes("C:\\"));
+			$this->assertEquals(768,$diskFreeDataSource->getFreeDiskBytes("C:\\"));
 		}
 		else
 		{ //assume unix style os
-			$this->assertEquals(disk_free_space("/"),$diskFreeDataSource->getFreeDiskBytes("/"));
+			$this->assertEquals(768,$diskFreeDataSource->getFreeDiskBytes("/"));
 		}
 	}
 
@@ -30,7 +36,16 @@ class DiskFreeTest extends PHPUnit_Framework_TestCase
 	{
 		$loop = \React\EventLoop\Factory::create();
 		$log=new Logger("test");
-		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop,$log);
+
+		$isolator=$this->getMock("\\Icecave\\Isolator\\Isolator",array("disk_free_space","disk_total_space"));
+		$isolator->expects($this->once())
+			->method("disk_free_space")
+			->will($this->returnValue(500));
+		$isolator->expects($this->once())
+			->method("disk_total_space")
+			->will($this->returnValue(1000));
+
+		$diskFreeDataSource=new \Phutler\DataSources\DiskFree($loop,$log,null,$isolator);
 		if (is_dir("C:\\"))
 		{ //we are on windows
 			$path="C:\\";
@@ -39,7 +54,6 @@ class DiskFreeTest extends PHPUnit_Framework_TestCase
 		{ //assume unix style os
 			$path="/";
 		}
-		$diskFreePercent=disk_free_space($path)/disk_total_space($path)*100;
-		$this->assertEquals($diskFreePercent,$diskFreeDataSource->getFreeDiskPercent($path));
+		$this->assertEquals(50,$diskFreeDataSource->getFreeDiskPercent($path));
 	}
 }

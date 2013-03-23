@@ -23,7 +23,7 @@ class DiskFree extends DataSource implements Interfaces\DiskFree
 	 */
 	function getFreeDiskBytes($_path)
 	{
-		return disk_free_space($_path);
+		return $this->isolator->disk_free_space($_path);
 	}
 
 	/**
@@ -34,6 +34,6 @@ class DiskFree extends DataSource implements Interfaces\DiskFree
 	 */
 	function getFreeDiskPercent($_path)
 	{
-		return disk_free_space($_path)/disk_total_space($_path)*100;
+		return $this->isolator->disk_free_space($_path)/$this->isolator->disk_total_space($_path)*100;
 	}
 }

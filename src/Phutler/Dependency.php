@@ -80,4 +80,25 @@ class Dependency
 	{
 		return true;
 	}
+
+	/**
+	 * Assert that the \c $_requiredConfigValues are present.
+	 *
+	 * @param array $_requiredConfigValues An associative array of config values that are required. The key is the name of the config value, the value in the array
+	 * 				the error message that should be logged if the value is not present.
+	 * @return bool True if all config values are present in $this->config, false otherwise
+	 */
+	protected function requireConfigValues($_requiredConfigValues)
+	{
+		$allConfigPresent=true;
+		foreach ($_requiredConfigValues as $requiredConfigValue => $errorMessage)
+		{
+			if (!isset($this->config->data->{$requiredConfigValue}))
+			{
+				$this->log->error($errorMessage);
+				$allConfigPresent=false;
+			}
+		}
+		return $allConfigPresent;
+	}
 }
